@@ -3,7 +3,6 @@ import { initializeApp } from "firebase/app";
 import { getDatabase, ref, push, set } from "firebase/database";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
-
 // Inisialisasi Firebase
 const firebaseConfig = {
   // Konfigurasi Firebase Anda di sini
@@ -48,8 +47,8 @@ const App = () => {
     onMessage(messaging, (payload) => {
       console.log("Received message:", payload);
       // Tambahkan logika penanganan pesan push di sini
-       const { title, body } = payload.notification;
-       alert(`${title}\n${body}`);
+      const { title, body } = payload.notification;
+      alert(`${title}\n${body}`);
     });
   }, []);
 
@@ -66,7 +65,7 @@ const App = () => {
       method: "POST",
       headers: {
         Authorization:
-          "Bearer YAAAA8yykx1E:APA91bEaRXEutbsFDhV-s6-vmkO0QnX9DlhKv07VrK79qbicFBu_vPPZaOgaAbJtLNM0FGBFPLi_-luh1_jjQfYrI8-gFzvj3RxtZa64dGsIDBIVR6nX3KxqTDvbAnze3S14csm3MhTH",
+          "Bearer AAAA8yykx1E:APA91bEaRXEutbsFDhV-s6-vmkO0QnX9DlhKv07VrK79qbicFBu_vPPZaOgaAbJtLNM0FGBFPLi_-luh1_jjQfYrI8-gFzvj3RxtZa64dGsIDBIVR6nX3KxqTDvbAnze3S14csm3MhTH",
         "Content-Type": "application/json",
       },
       body: JSON.stringify(message),
