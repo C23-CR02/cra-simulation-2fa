@@ -43,6 +43,7 @@ const App = () => {
         console.error("Error getting registration token:", error);
       });
 
+// testing
     // Menerima dan menangani pesan yang diterima saat aplikasi berjalan
     onMessage(messaging, (payload) => {
       console.log("Received message:", payload);
