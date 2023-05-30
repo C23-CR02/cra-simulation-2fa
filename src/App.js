@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { initializeApp } from "firebase/app";
-import { getDatabase, ref, push, set } from "firebase/database";
+import { getDatabase, ref, push, set, get, remove } from "firebase/database";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
 // Inisialisasi Firebase
@@ -30,34 +30,58 @@ const App = () => {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    // Mengambil dan menyimpan token perangkat saat komponen dimuat
-    getToken(messaging)
-      .then((currentToken) => {
-        if (currentToken) {
-          console.log("FCM token:", currentToken);
-        } else {
-          console.log("No registration token available.");
-        }
+  // Mengambil dan menyimpan token perangkat saat komponen dimuat
+  getToken(messaging)
+    .then((currentToken) => {
+      if (currentToken) {
+        console.log("FCM token:", currentToken);
+      } else {
+        console.log("No registration token available.");
+      }
+    })
+    .catch((error) => {
+      console.error("Error getting registration token:", error);
+    });
+
+  // Menerima dan menangani pesan yang diterima saat aplikasi berjalan
+  onMessage(messaging, (payload) => {
+    console.log("Received message:", payload);
+    const { title, body } = payload.notification;
+
+    navigator.serviceWorker.ready
+      .then((registration) => {
+        registration.showNotification(title, {
+          body,
+          actions: [
+            { action: "yes", title: "Ya" },
+            { action: "no", title: "Tidak" },
+          ],
+        });
       })
       .catch((error) => {
-        console.error("Error getting registration token:", error);
+        console.error("Error showing notification:", error);
       });
+  });
 
-// testing
-    // Menerima dan menangani pesan yang diterima saat aplikasi berjalan
-    onMessage(messaging, (payload) => {
-      console.log("Received message:", payload);
-      // Tambahkan logika penanganan pesan push di sini
-      const { title, body } = payload.notification;
-      alert(`${title}\n${body}`);
-    });
-  }, []);
+  const handleClickNotification = (event) => {
+    if (event.action === "yes") {
+      sendDraftEmail();
+    }
+    event.notification.close();
+  };
+
+  window.addEventListener("notificationclick", handleClickNotification);
+
+  return () => {
+    window.removeEventListener("notificationclick", handleClickNotification);
+  };
+}, []);
 
   const sendPushNotification = (token, title, body) => {
     const message = {
-      "to": token,
-      "priority": "high",
-      "soundName": "default",
+      to: token,
+      priority: "high",
+      soundName: "default",
       notification: {
         title,
         body,
@@ -97,7 +121,6 @@ const App = () => {
       .then(() => {
         console.log("Draft saved successfully!");
 
-        // Mengirim notifikasi push ke perangkat Android
         getToken(messaging)
           .then((currentToken) => {
             if (currentToken) {
@@ -114,13 +137,40 @@ const App = () => {
             console.error("Error getting registration token:", error);
           });
 
-        // Mengosongkan kolom input setelah pengiriman berhasil
         setEmail("");
         setSubject("");
         setMessage("");
       })
       .catch((error) => {
         console.error("Error saving draft:", error);
+      });
+  };
+
+  const sendDraftEmail = () => {
+    const draftsRef = ref(database, "drafts");
+
+    get(draftsRef)
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          const drafts = snapshot.val();
+          const draftKeys = Object.keys(drafts);
+          const firstDraftKey = draftKeys[0];
+          const firstDraft = drafts[firstDraftKey];
+          const { email, subject, message } = firstDraft;
+
+          console.log("Mengirim email:", email, subject, message);
+
+          remove(ref(draftsRef, firstDraftKey))
+            .then(() => {
+              console.log("Draf terkirim dan dihapus.");
+            })
+            .catch((error) => {
+              console.error("Error menghapus draf:", error);
+            });
+        }
+      })
+      .catch((error) => {
+        console.error("Error mengambil draf:", error);
       });
   };
 
