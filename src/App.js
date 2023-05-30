@@ -55,7 +55,9 @@ const App = () => {
 
   const sendPushNotification = (token, title, body) => {
     const message = {
-      token,
+      "to": token,
+      "priority": "high",
+      "soundName": "default",
       notification: {
         title,
         body,
@@ -66,7 +68,7 @@ const App = () => {
       method: "POST",
       headers: {
         Authorization:
-          "Bearer AAAA8yykx1E:APA91bEaRXEutbsFDhV-s6-vmkO0QnX9DlhKv07VrK79qbicFBu_vPPZaOgaAbJtLNM0FGBFPLi_-luh1_jjQfYrI8-gFzvj3RxtZa64dGsIDBIVR6nX3KxqTDvbAnze3S14csm3MhTH",
+          "Bearer AAAA8yykx1E:APA91bFe_UxUMdiMKm0BBI7l42hKqEFkzDtqQdGTS9xHWPgIjysaJ5G1VtAyu8smbEyD59TKBN1jHmUhCh8pl6wgBLjYr8Juo-xV53paKIY37aTiA4sY-IDAyIssnruFTWfdrhULcvU3",
         "Content-Type": "application/json",
       },
       body: JSON.stringify(message),
